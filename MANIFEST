@@ -1,0 +1,13 @@
+Changes
+Header.pm
+Makefile.PL
+MANIFEST
+README
+test.pl
+test.ogg
+test.ogg.bak
+LICENSE.GPL
+inc/i18n.h
+inc/vcedit.c
+inc/vcedit.h
+inc/LICENSE.LGPL
