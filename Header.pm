@@ -4,14 +4,14 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use Inline C => 'DATA',
 					LIBS => '-logg -lvorbis -lvorbisfile',
 					INC => '-I/inc',
 					AUTO_INCLUDE => '#include "inc/vcedit.h"',
 					AUTO_INCLUDE => '#include "inc/vcedit.c"',
-					VERSION => '0.01',
+					VERSION => '0.02',
 					NAME => 'Ogg::Vorbis::Header';
 
 # constructors
@@ -28,6 +28,7 @@ sub load {
 	unless (ref($id)) {
 		$id = _new($id, $path);
 	}
+	return $id unless $id;
 	$id->_load_info;
 	$id->_load_comments;
 	return $id;
@@ -276,7 +277,7 @@ Dan Pemstein E<lt>dan@lcws.orgE<gt>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2002, Dan Pemstein.  All Rights Reserved.
+Copyright (c) 2003, Dan Pemstein.  All Rights Reserved.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -293,7 +294,7 @@ with this module (inc/LICENSE.LGPL).
 
 =head1 SEE ALSO
 
-L<Ogg::Vorbis>, L<Inline::C>.
+L<Ogg::Vorbis::Decoder>, L<Inline::C>, L<Audio::Ao>.
 
 =cut
 
@@ -304,6 +305,8 @@ __C__
 #include <string.h>
 #include <vorbis/codec.h>
 #include <vorbis/vorbisfile.h>
+
+#define BUFFSIZE 512
 
 /* Loads info and length from the stream a fills the object's hash */
 void _load_info(SV *obj)
@@ -317,7 +320,7 @@ void _load_info(SV *obj)
 	
 	/* Open the vorbis stream file */
 	ptr = (char *) SvIV(*(hv_fetch(hash, "_PATH", 5, 0)));
-	if ((fd = fopen(ptr, "r")) == NULL) {
+	if ((fd = fopen(ptr, "rb")) == NULL) {
 		perror("Error opening file in Ogg::Vorbis::Header::_load_info\n");
 		return;
 	}
@@ -361,7 +364,7 @@ void _load_comments(SV *obj)
 
 	/* Open the vorbis stream file */
 	ptr = (char *) SvIV(*(hv_fetch(hash, "_PATH", 5, 0)));
-	if ((fd = fopen(ptr, "r")) == NULL) {
+	if ((fd = fopen(ptr, "rb")) == NULL) {
 		perror("Error opening file in Ogg::Vorbis::Header::_load_comments\n");
 		return;
 	}
@@ -412,7 +415,7 @@ SV* _new(char *class, char *path)
 	hv_store(hash, "_PATH", 5, newSViv((IV) _path), 0);
 	
 	/* Open the vorbis stream file */
-	if ((fd = fopen(path, "r")) == NULL)
+	if ((fd = fopen(path, "rb")) == NULL)
 		return &PL_sv_undef;
 	
 	if (ov_test(fd, &vf, NULL, 0) < 0) {
@@ -442,13 +445,16 @@ int write_vorbis (SV *obj)
 {
 	vcedit_state *state;
 	vorbis_comment *vc;
-	char *inpath, *outpath, *mvstring, *key, *val;
-	FILE *fd, *fd2;
+	char *inpath, *outpath, *key, *val;
+	FILE *fd, *fd2, *fd3, *fd4;
 	HV *hash = (HV *) SvRV(obj);
 	HV *chash;
 	AV *vals;
 	HE *hval;
+	int bytes;
+	char buffer[BUFFSIZE];
 	I32 i, j, num;
+
 
 	/* Skip if comments hasn't been opened */
 	if (! hv_exists(hash, "COMMENTS", 8)) {
@@ -456,32 +462,34 @@ int write_vorbis (SV *obj)
 	}
 
 	/* Set up the input and output paths */
-	inpath = strdup((char *) SvIV(*(hv_fetch(hash, "_PATH", 5, 0))));
+	inpath = (char *) SvIV(*(hv_fetch(hash, "_PATH", 5, 0)));
 	outpath = malloc(strlen(inpath) + (8 * sizeof(char)));
 	strcpy(outpath, inpath);
 	strcat(outpath, ".ovitmp");
 
 	/* Open the files */
-	if ((fd = fopen(inpath, "r")) == NULL) {
+	if ((fd = fopen(inpath, "rb")) == NULL) {
 		perror("Error opening file in Ogg::Vorbis::Header::write\n");
-		free(inpath);
 		free(outpath);
-		return 0;
+		return &PL_sv_undef;
 	}
 
-	if ((fd2 = fopen(outpath, "w+")) == NULL) {
-		fclose(fd);
-		free(inpath);
-		free(outpath);
+	if ((fd2 = fopen(outpath, "w+b")) == NULL) {
 		perror("Error opening temp file in Ogg::Vorbis::Header::write\n");
-		return 0;
+		fclose(fd);
+		free(outpath);
+		return &PL_sv_undef;
 	}
 
 	/* Setup the state and comments structs */
 	state = vcedit_new_state();
 	if (vcedit_open(state, fd) < 0) {
 		perror("Error opening stream in Ogg::Vorbis::Header::add_comment\n");
-		goto cleanup;
+		fclose(fd);
+		fclose(fd2);
+		unlink(outpath);
+		free(outpath);
+		return &PL_sv_undef;
 	}
 	vc = vcedit_comments(state);
 
@@ -508,36 +516,41 @@ int write_vorbis (SV *obj)
 	/* Write out the new stream */
 	if (vcedit_write(state, fd2) < 0) {
 		perror("Error writing stream in Ogg::Vorbis::Header::add_comment\n");
-		goto cleanup;
+		fclose(fd);
+		fclose(fd2);
+		vcedit_clear(state);
+		unlink(outpath);
+		free(outpath);
+		return &PL_sv_undef;
 	}
 
 	fclose(fd);
 	fclose(fd2);
 	vcedit_clear(state);
-	mvstring = malloc(strlen(inpath) + strlen(outpath)
-		+ (5 * sizeof(char)));
-	strcpy(mvstring, "mv ");
-	strcat(mvstring, outpath);
-	strcat(mvstring, " ");
-	strcat(mvstring, inpath);
-	unlink(inpath);
-	system(mvstring);
-	unlink(outpath);
-	free(inpath);
-	free(outpath);
-	free(mvstring);
+	if ((fd = fopen(outpath, "rb")) == NULL) {
+		perror("Error copying tempfile in Ogg::Vorbis::Header::add_comment\n");
+		unlink(outpath);
+		free(outpath);
+		return &PL_sv_undef;
+	}
+	
+	if ((fd2 = fopen(inpath, "wb")) == NULL) {
+		perror("Error copying tempfile in Ogg::Vorbis::Header::write_vorbis\n");
+		fclose(fd);
+		unlink(outpath);
+		free(outpath);
+		return &PL_sv_undef;
+	}
 
+	while ((bytes = fread(buffer, 1, BUFFSIZE, fd)) > 0)
+		fwrite(buffer, 1, bytes, fd2);
+	
+	fclose(fd);
+	fclose(fd2);
+	unlink(outpath);
+	free(outpath);
 
 	return 1;
-	
-	cleanup:
-		fclose(fd);
-		fclose(fd2);
-		unlink(outpath);
-		free(inpath);
-		free(outpath);
-		vcedit_clear(state);
-		return 0;
 }
 		
 /* We strdup'd the internal path string so we need to free it */

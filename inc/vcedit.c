@@ -6,7 +6,7 @@
  *
  * Comment editing backend, suitable for use by nice frontend interfaces.
  *
- * last modified: $Id: vcedit.c,v 1.20 2002/07/09 12:44:54 msmith Exp $
+ * last modified: $Id: vcedit.c,v 1.1.1.1 2003/01/05 00:16:43 dan Exp $
  */
 
 #include <stdio.h>
