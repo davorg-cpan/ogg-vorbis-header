@@ -4,14 +4,14 @@ use 5.006;
 use strict;
 use warnings;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use Inline C => 'DATA',
 					LIBS => '-logg -lvorbis -lvorbisfile',
 					INC => '-I/inc',
 					AUTO_INCLUDE => '#include "inc/vcedit.h"',
 					AUTO_INCLUDE => '#include "inc/vcedit.c"',
-					VERSION => '0.02',
+					VERSION => '0.03',
 					NAME => 'Ogg::Vorbis::Header';
 
 # constructors
@@ -194,7 +194,7 @@ parameter is ignored in instance context.
 
 =head1 INSTANCE METHODS
 
-These methods may be called on actual PLWarlock::Vorbis objects, using
+These methods may be called on actual Header objects, using
 the -> operator or indirect objects as you prefer.
 
 =head2 C<info ([$key])>
@@ -380,6 +380,11 @@ void _load_comments(SV *obj)
 	th = newHV();
 	for (i = 0; i < vc->comments; ++i) {
 		half = strchr(vc->user_comments[i], '=');
+		if (half == NULL) {
+			warn("Comment \"%s\" missing \'=\', skipping...\n",
+						vc->user_comments[i]);
+			continue;
+		}
 		if (! hv_exists(th, vc->user_comments[i],
 										half - vc->user_comments[i])) {
 			ta = newAV();
