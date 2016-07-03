@@ -12,5 +12,9 @@ Revision history for Perl extension Ogg::Vorbis::Header.
 		symbols.  Library issues a warning and skips these comments when
 		loading from file.
 
-0.04  Fri Jul 01 19:07:00 UTC 2016
+0.04  Fri Jul 01 19:07:00 BST 2016
   - Fixed syntax errors in tests.
+
+0.05  Sun Jul 03 06:25:00 BST 2016
+  - Packaging fixes
+
