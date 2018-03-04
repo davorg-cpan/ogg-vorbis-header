@@ -12,3 +12,5 @@ before_install:
 script:
   perl Makefile.PL && make && cover -test -report coveralls
 
+after_failure:
+  cat /home/travis/.cpanm/work/*/build.log
