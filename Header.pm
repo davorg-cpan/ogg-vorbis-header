@@ -40,7 +40,7 @@ sub info {
 	my ($self, $key) = @_;
 	$self->_load_info unless $self->{INFO};
 	if ($key) {
-		return $self->{INFO}->{$key}
+		return $self->{INFO}->{$key};
 	}
 	return $self->{INFO};
 }
@@ -76,7 +76,7 @@ sub add_comments {
 		$val =~ s/[^\x20-\x7D]//g;
 		push @{$self->{COMMENTS}->{$key}}, $val;
 	}
-	
+
 	return 1;
 }
 
@@ -86,7 +86,7 @@ sub edit_comment {
 
 	return undef unless $key and $value and $num =~ /^\d*$/;
 	$self->_load_comments unless $self->{COMMENTS};
-	
+
 	my $comment = $self->{COMMENTS}->{$key};
 	return undef unless $comment;
 	$value =~ s/[^\x20-\x7D]//g;
@@ -104,7 +104,7 @@ sub delete_comment {
 
 	return undef unless $key and $num =~ /^\d*$/;
 	$self->_load_comments unless $self->{COMMENTS};
-	
+
 	my $comment = $self->{COMMENTS}->{$key};
 	return undef unless $comment;
 	return undef unless @$comment > $num;
@@ -120,7 +120,7 @@ sub delete_comment {
 
 sub clear_comments {
 	my ($self, @keys) = @_;
-	
+
 	$self->_load_comments unless $self->{COMMENTS};
 	if (@keys) {
 		foreach (@keys) {
@@ -161,7 +161,7 @@ information and comment fields.
 	$ogg->add_comments("good", "no", "ok", "yes");
 	$ogg->delete_comment("ok");
 	$ogg->write_vorbis;
-		
+
 
 =head1 DESCRIPTION
 
@@ -317,22 +317,22 @@ void _load_info(SV *obj)
 	char *ptr;
 	HV *th;
 	HV *hash = (HV *) SvRV(obj);
-	
+
 	/* Open the vorbis stream file */
 	ptr = (char *) SvIV(*(hv_fetch(hash, "_PATH", 5, 0)));
 	if ((fd = fopen(ptr, "rb")) == NULL) {
 		perror("Error opening file in Ogg::Vorbis::Header::_load_info\n");
 		return;
 	}
-	
+
 	if (ov_open(fd, &vf, NULL, 0) < 0) {
 		fclose(fd);
 		perror("Error opening file in Ogg::Vorbis::Header::_load_info\n");
 		return;
 	}
-	
+
 	vi = ov_info(&vf, -1);
-	
+
 	th = newHV();
 	hv_store(th, "version", 7, newSViv(vi->version), 0);
 	hv_store(th, "channels", 8, newSViv(vi->channels), 0);
@@ -342,9 +342,9 @@ void _load_info(SV *obj)
 	hv_store(th, "bitrate_lower", 13, newSViv(vi->bitrate_lower), 0);
 	hv_store(th, "bitrate_window", 14, newSViv(vi->bitrate_window), 0);
 	hv_store(th, "length", 6, newSVnv(ov_time_total(&vf, -1)), 0);
-	
+
 	hv_store(hash, "INFO", 4, newRV_noinc((SV *) th), 0);
-	
+
 	ov_clear(&vf);
 }
 
@@ -368,7 +368,7 @@ void _load_comments(SV *obj)
 		perror("Error opening file in Ogg::Vorbis::Header::_load_comments\n");
 		return;
 	}
-	
+
 	if (ov_open(fd, &vf, NULL, 0) < 0) {
 		fclose(fd);
 		perror("Error opening file in Ogg::Vorbis::Header::_load_comments\n");
@@ -376,7 +376,7 @@ void _load_comments(SV *obj)
 	}
 
 	vc = ov_comment(&vf, -1);
-	
+
 	th = newHV();
 	for (i = 0; i < vc->comments; ++i) {
 		half = strchr(vc->user_comments[i], '=');
@@ -410,7 +410,7 @@ SV* _new(char *class, char *path)
 	FILE *fd;
 	char *_path;
 	OggVorbis_File vf;
-	
+
 	/* Create our new hash and the reference to it. */
 	HV *hash = newHV();
 	SV *obj_ref = newRV_noinc((SV*) hash);
@@ -418,11 +418,11 @@ SV* _new(char *class, char *path)
 	/* Save an internal (c-style) rep of the path */
 	_path = strdup(path);
 	hv_store(hash, "_PATH", 5, newSViv((IV) _path), 0);
-	
+
 	/* Open the vorbis stream file */
 	if ((fd = fopen(path, "rb")) == NULL)
 		return &PL_sv_undef;
-	
+
 	if (ov_test(fd, &vf, NULL, 0) < 0) {
 		fclose(fd);
 		return &PL_sv_undef;
@@ -435,8 +435,8 @@ SV* _new(char *class, char *path)
 	 * descriptor open.
 	 */
 	ov_clear(&vf);
-	
-	/* Bless the hashref to create a class object */	
+
+	/* Bless the hashref to create a class object */
 	sv_bless(obj_ref, gv_stashpv(class, FALSE));
 
 	return obj_ref;
@@ -517,7 +517,7 @@ int write_vorbis (SV *obj)
 			vorbis_comment_add_tag(vc, key, val);
 		}
 	}
-	
+
 	/* Write out the new stream */
 	if (vcedit_write(state, fd2) < 0) {
 		perror("Error writing stream in Ogg::Vorbis::Header::add_comment\n");
@@ -538,7 +538,7 @@ int write_vorbis (SV *obj)
 		free(outpath);
 		return &PL_sv_undef;
 	}
-	
+
 	if ((fd2 = fopen(inpath, "wb")) == NULL) {
 		perror("Error copying tempfile in Ogg::Vorbis::Header::write_vorbis\n");
 		fclose(fd);
@@ -549,7 +549,7 @@ int write_vorbis (SV *obj)
 
 	while ((bytes = fread(buffer, 1, BUFFSIZE, fd)) > 0)
 		fwrite(buffer, 1, bytes, fd2);
-	
+
 	fclose(fd);
 	fclose(fd2);
 	unlink(outpath);
@@ -557,7 +557,7 @@ int write_vorbis (SV *obj)
 
 	return 1;
 }
-		
+
 /* We strdup'd the internal path string so we need to free it */
 void DESTROY (SV *obj)
 {
