@@ -410,7 +410,7 @@ int vcedit_write(vcedit_state *state, void *out)
 				ogg_stream_packetin(&streamout, &op);
 				needout=1;
 			}
-		}		
+		}
 	}
 
 	streamout.e_o_s = 1;
@@ -471,7 +471,7 @@ int vcedit_write(vcedit_state *state, void *out)
 			break;
 		}
 	}
-							
+
 
 cleanup:
 	ogg_stream_clear(&streamout);
