@@ -39,7 +39,7 @@ sub load {
 sub info {
 	my ($self, $key) = @_;
 	$self->_load_info unless $self->{INFO};
-	if ($key) { 
+	if ($key) {
 		return $self->{INFO}->{$key}
 	}
 	return $self->{INFO};
@@ -167,7 +167,7 @@ information and comment fields.
 
 This module presents an object-oriented interface to Ogg Vorbis files
 which allows user to view Vorbis info and comments and to modify or
-add comments.  
+add comments.
 
 =head1 CONSTRUCTORS
 
@@ -249,7 +249,7 @@ Deletes the comment given by key.  The optional num value can be used
 to specify which comment to delete, given duplicate keys.  Leaving num
 out will result in only the first instance being deleted.  Returns
 C<undef> if key or num are invalid.  If all goes well, the value of
-the deleted comment is returned. 
+the deleted comment is returned.
 
 =head2 C<clear_comments ([@keys])>
 
@@ -442,7 +442,7 @@ SV* _new(char *class, char *path)
 	return obj_ref;
 }
 
-/* These comment manipulation functions use the vcedit library by 
+/* These comment manipulation functions use the vcedit library by
  * Michael Smith.  They also borrow quite a bit from vorbiscomment
  * (vcomment.c) by Michael Smith and Ralph Giles.
  */
