@@ -2,12 +2,12 @@ use Inline::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 WriteMakefile(
-    'NAME'		=> 'Ogg::Vorbis::Header',
-    'VERSION_FROM'	=> 'Header.pm', # finds $VERSION
-    'PREREQ_PM'		=> {
-       Inline::C         => 0,
+    'NAME'         => 'Ogg::Vorbis::Header',
+    'VERSION_FROM' => 'Header.pm', # finds $VERSION
+    'PREREQ_PM'    => {
+       Inline::C   => 0,
     }, # e.g., Module::Name => 1.1
-    'CONFIGURE_REQUIRES'    => {
+    'CONFIGURE_REQUIRES' => {
        Inline::MakeMaker => 0,
     },
     META_MERGE => {

@@ -64,7 +64,7 @@ static void vcedit_clear_internals(vcedit_state *state)
     if(state->bookbuf)
         free(state->bookbuf);
     if(state->vi) {
-       	vorbis_info_clear(state->vi);
+        vorbis_info_clear(state->vi);
         free(state->vi);
     }
 
@@ -197,9 +197,9 @@ int vcedit_open_callbacks(vcedit_state *state, void *in,
   char *buffer;
   int bytes,i;
   ogg_packet *header;
-  ogg_packet	header_main;
+  ogg_packet  header_main;
   ogg_packet  header_comments;
-  ogg_packet	header_codebooks;
+  ogg_packet  header_codebooks;
   ogg_page    og;
 
   state->in = in;
