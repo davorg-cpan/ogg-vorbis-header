@@ -81,63 +81,63 @@ sub add_comments {
 }
 
 sub edit_comment {
-	my ($self, $key, $value, $num) = @_;
-	$num ||= 0;
+  my ($self, $key, $value, $num) = @_;
+  $num ||= 0;
 
-	return undef unless $key and $value and $num =~ /^\d*$/;
-	$self->_load_comments unless $self->{COMMENTS};
+  return undef unless $key and $value and $num =~ /^\d*$/;
+  $self->_load_comments unless $self->{COMMENTS};
 
-	my $comment = $self->{COMMENTS}->{$key};
-	return undef unless $comment;
-	$value =~ s/[^\x20-\x7D]//g;
-	return undef unless @$comment > $num;
+  my $comment = $self->{COMMENTS}->{$key};
+  return undef unless $comment;
+  $value =~ s/[^\x20-\x7D]//g;
+  return undef unless @$comment > $num;
 
-	my $result = $comment->[$num];
-	$comment->[$num] = $value;
+  my $result = $comment->[$num];
+  $comment->[$num] = $value;
 
-	return $result;
+  return $result;
 }
 
 sub delete_comment {
-	my ($self, $key, $num) = @_;
-	$num ||= 0;
+  my ($self, $key, $num) = @_;
+  $num ||= 0;
 
-	return undef unless $key and $num =~ /^\d*$/;
-	$self->_load_comments unless $self->{COMMENTS};
+  return undef unless $key and $num =~ /^\d*$/;
+  $self->_load_comments unless $self->{COMMENTS};
 
-	my $comment = $self->{COMMENTS}->{$key};
-	return undef unless $comment;
-	return undef unless @$comment > $num;
+  my $comment = $self->{COMMENTS}->{$key};
+  return undef unless $comment;
+  return undef unless @$comment > $num;
 
-	my $result = splice @$comment, $num, 1;
+  my $result = splice @$comment, $num, 1;
 
-	if (@$comment == 0) {
-		delete($self->{COMMENTS}->{$key});
-	}
+  if (@$comment == 0) {
+    delete($self->{COMMENTS}->{$key});
+  }
 
-	return $result;
+  return $result;
 }
 
 sub clear_comments {
-	my ($self, @keys) = @_;
+  my ($self, @keys) = @_;
 
-	$self->_load_comments unless $self->{COMMENTS};
-	if (@keys) {
-		foreach (@keys) {
-			return undef unless $self->{COMMENTS}->{$_};
-			delete($self->{COMMENTS}->{$_});
-		}
-	} else {
-		foreach (keys %{$self->{COMMENTS}}) {
-			delete($self->{COMMENTS}->{$_});
-		}
-	}
-	return 1;
+  $self->_load_comments unless $self->{COMMENTS};
+  if (@keys) {
+    foreach (@keys) {
+      return undef unless $self->{COMMENTS}->{$_};
+      delete($self->{COMMENTS}->{$_});
+    }
+  } else {
+    foreach (keys %{$self->{COMMENTS}}) {
+      delete($self->{COMMENTS}->{$_});
+    }
+  }
+  return 1;
 }
 
 sub path {
-	my $self = shift;
-	return $self->{PATH};
+  my $self = shift;
+  return $self->{PATH};
 }
 
 1;
@@ -150,17 +150,17 @@ information and comment fields.
 
 =head1 SYNOPSIS
 
-	use Ogg::Vorbis::Header;
-	my $ogg = Ogg::Vorbis::Header->new("song.ogg");
-	while (my ($k, $v) = each %{$ogg->info}) {
-		print "$k: $v\n";
-	}
-	foreach my $com ($ogg->comment_tags) {
-		print "$com: $_\n" foreach $ogg->comment($com);
-	}
-	$ogg->add_comments("good", "no", "ok", "yes");
-	$ogg->delete_comment("ok");
-	$ogg->write_vorbis;
+  use Ogg::Vorbis::Header;
+  my $ogg = Ogg::Vorbis::Header->new("song.ogg");
+  while (my ($k, $v) = each %{$ogg->info}) {
+    print "$k: $v\n";
+  }
+  foreach my $com ($ogg->comment_tags) {
+    print "$com: $_\n" foreach $ogg->comment($com);
+  }
+  $ogg->add_comments("good", "no", "ok", "yes");
+  $ogg->delete_comment("ok");
+  $ogg->write_vorbis;
 
 
 =head1 DESCRIPTION
@@ -311,135 +311,135 @@ __C__
 /* Loads info and length from the stream a fills the object's hash */
 void _load_info(SV *obj)
 {
-	OggVorbis_File vf;
-	vorbis_info *vi;
-	FILE *fd;
-	char *ptr;
-	HV *th;
-	HV *hash = (HV *) SvRV(obj);
+  OggVorbis_File vf;
+  vorbis_info *vi;
+  FILE *fd;
+  char *ptr;
+  HV *th;
+  HV *hash = (HV *) SvRV(obj);
 
-	/* Open the vorbis stream file */
-	ptr = (char *) SvIV(*(hv_fetch(hash, "_PATH", 5, 0)));
-	if ((fd = fopen(ptr, "rb")) == NULL) {
-		perror("Error opening file in Ogg::Vorbis::Header::_load_info\n");
-		return;
-	}
+  /* Open the vorbis stream file */
+  ptr = (char *) SvIV(*(hv_fetch(hash, "_PATH", 5, 0)));
+  if ((fd = fopen(ptr, "rb")) == NULL) {
+    perror("Error opening file in Ogg::Vorbis::Header::_load_info\n");
+    return;
+  }
 
-	if (ov_open(fd, &vf, NULL, 0) < 0) {
-		fclose(fd);
-		perror("Error opening file in Ogg::Vorbis::Header::_load_info\n");
-		return;
-	}
+  if (ov_open(fd, &vf, NULL, 0) < 0) {
+    fclose(fd);
+    perror("Error opening file in Ogg::Vorbis::Header::_load_info\n");
+    return;
+  }
 
-	vi = ov_info(&vf, -1);
+  vi = ov_info(&vf, -1);
 
-	th = newHV();
-	hv_store(th, "version", 7, newSViv(vi->version), 0);
-	hv_store(th, "channels", 8, newSViv(vi->channels), 0);
-	hv_store(th, "rate", 4, newSViv(vi->rate), 0);
-	hv_store(th, "bitrate_upper", 13, newSViv(vi->bitrate_upper), 0);
-	hv_store(th, "bitrate_nominal", 15, newSViv(vi->bitrate_nominal), 0);
-	hv_store(th, "bitrate_lower", 13, newSViv(vi->bitrate_lower), 0);
-	hv_store(th, "bitrate_window", 14, newSViv(vi->bitrate_window), 0);
-	hv_store(th, "length", 6, newSVnv(ov_time_total(&vf, -1)), 0);
+  th = newHV();
+  hv_store(th, "version", 7, newSViv(vi->version), 0);
+  hv_store(th, "channels", 8, newSViv(vi->channels), 0);
+  hv_store(th, "rate", 4, newSViv(vi->rate), 0);
+  hv_store(th, "bitrate_upper", 13, newSViv(vi->bitrate_upper), 0);
+  hv_store(th, "bitrate_nominal", 15, newSViv(vi->bitrate_nominal), 0);
+  hv_store(th, "bitrate_lower", 13, newSViv(vi->bitrate_lower), 0);
+  hv_store(th, "bitrate_window", 14, newSViv(vi->bitrate_window), 0);
+  hv_store(th, "length", 6, newSVnv(ov_time_total(&vf, -1)), 0);
 
-	hv_store(hash, "INFO", 4, newRV_noinc((SV *) th), 0);
+  hv_store(hash, "INFO", 4, newRV_noinc((SV *) th), 0);
 
-	ov_clear(&vf);
+  ov_clear(&vf);
 }
 
 /* Loads the commments from the stream and fills the object's hash */
 void _load_comments(SV *obj)
 {
-	OggVorbis_File vf;
-	vorbis_comment *vc;
-	FILE *fd;
-	HV *th;
-	SV *ts;
-	AV *ta;
-	char *half;
-	char *ptr;
-	int i;
-	HV *hash = (HV *) SvRV(obj);
+  OggVorbis_File vf;
+  vorbis_comment *vc;
+  FILE *fd;
+  HV *th;
+  SV *ts;
+  AV *ta;
+  char *half;
+  char *ptr;
+  int i;
+  HV *hash = (HV *) SvRV(obj);
 
-	/* Open the vorbis stream file */
-	ptr = (char *) SvIV(*(hv_fetch(hash, "_PATH", 5, 0)));
-	if ((fd = fopen(ptr, "rb")) == NULL) {
-		perror("Error opening file in Ogg::Vorbis::Header::_load_comments\n");
-		return;
-	}
+  /* Open the vorbis stream file */
+  ptr = (char *) SvIV(*(hv_fetch(hash, "_PATH", 5, 0)));
+  if ((fd = fopen(ptr, "rb")) == NULL) {
+    perror("Error opening file in Ogg::Vorbis::Header::_load_comments\n");
+    return;
+  }
 
-	if (ov_open(fd, &vf, NULL, 0) < 0) {
-		fclose(fd);
-		perror("Error opening file in Ogg::Vorbis::Header::_load_comments\n");
-		return;
-	}
+  if (ov_open(fd, &vf, NULL, 0) < 0) {
+    fclose(fd);
+    perror("Error opening file in Ogg::Vorbis::Header::_load_comments\n");
+    return;
+  }
 
-	vc = ov_comment(&vf, -1);
+  vc = ov_comment(&vf, -1);
 
-	th = newHV();
-	for (i = 0; i < vc->comments; ++i) {
-		half = strchr(vc->user_comments[i], '=');
-		if (half == NULL) {
-			warn("Comment \"%s\" missing \'=\', skipping...\n",
-						vc->user_comments[i]);
-			continue;
-		}
-		if (! hv_exists(th, vc->user_comments[i],
-										half - vc->user_comments[i])) {
-			ta = newAV();
-			ts = newRV_noinc((SV*) ta);
-			hv_store(th, vc->user_comments[i], half - vc->user_comments[i],
-				ts, 0);
-		} else {
-			ta = (AV*) SvRV(*(hv_fetch(th, vc->user_comments[i],
-						half - vc->user_comments[i], 0)));
-		}
-		av_push(ta, newSVpv(half + 1, 0));
-	}
+  th = newHV();
+  for (i = 0; i < vc->comments; ++i) {
+    half = strchr(vc->user_comments[i], '=');
+    if (half == NULL) {
+      warn("Comment \"%s\" missing \'=\', skipping...\n",
+            vc->user_comments[i]);
+      continue;
+    }
+    if (! hv_exists(th, vc->user_comments[i],
+                half - vc->user_comments[i])) {
+      ta = newAV();
+      ts = newRV_noinc((SV*) ta);
+      hv_store(th, vc->user_comments[i], half - vc->user_comments[i],
+        ts, 0);
+    } else {
+      ta = (AV*) SvRV(*(hv_fetch(th, vc->user_comments[i],
+            half - vc->user_comments[i], 0)));
+    }
+    av_push(ta, newSVpv(half + 1, 0));
+  }
 
-	hv_store(hash, "COMMENTS", 8, newRV_noinc((SV *) th), 0);
+  hv_store(hash, "COMMENTS", 8, newRV_noinc((SV *) th), 0);
 
-	ov_clear(&vf);
+  ov_clear(&vf);
 }
 
 /* Our base object constructor.  Creates a blessed hash. */
 SV* _new(char *class, char *path)
 {
-	/* A few variables */
-	FILE *fd;
-	char *_path;
-	OggVorbis_File vf;
+  /* A few variables */
+  FILE *fd;
+  char *_path;
+  OggVorbis_File vf;
 
-	/* Create our new hash and the reference to it. */
-	HV *hash = newHV();
-	SV *obj_ref = newRV_noinc((SV*) hash);
+  /* Create our new hash and the reference to it. */
+  HV *hash = newHV();
+  SV *obj_ref = newRV_noinc((SV*) hash);
 
-	/* Save an internal (c-style) rep of the path */
-	_path = strdup(path);
-	hv_store(hash, "_PATH", 5, newSViv((IV) _path), 0);
+  /* Save an internal (c-style) rep of the path */
+  _path = strdup(path);
+  hv_store(hash, "_PATH", 5, newSViv((IV) _path), 0);
 
-	/* Open the vorbis stream file */
-	if ((fd = fopen(path, "rb")) == NULL)
-		return &PL_sv_undef;
+  /* Open the vorbis stream file */
+  if ((fd = fopen(path, "rb")) == NULL)
+    return &PL_sv_undef;
 
-	if (ov_test(fd, &vf, NULL, 0) < 0) {
-		fclose(fd);
-		return &PL_sv_undef;
-	}
+  if (ov_test(fd, &vf, NULL, 0) < 0) {
+    fclose(fd);
+    return &PL_sv_undef;
+  }
 
-	/* Values stored at base level */
-	hv_store(hash, "PATH", 4, newSVpv(path, 0), 0);
+  /* Values stored at base level */
+  hv_store(hash, "PATH", 4, newSVpv(path, 0), 0);
 
-	/* Close our OggVorbis_File cause we don't want to keep the file
-	 * descriptor open.
-	 */
-	ov_clear(&vf);
+  /* Close our OggVorbis_File cause we don't want to keep the file
+   * descriptor open.
+   */
+  ov_clear(&vf);
 
-	/* Bless the hashref to create a class object */
-	sv_bless(obj_ref, gv_stashpv(class, FALSE));
+  /* Bless the hashref to create a class object */
+  sv_bless(obj_ref, gv_stashpv(class, FALSE));
 
-	return obj_ref;
+  return obj_ref;
 }
 
 /* These comment manipulation functions use the vcedit library by
@@ -448,122 +448,122 @@ SV* _new(char *class, char *path)
  */
 int write_vorbis (SV *obj)
 {
-	vcedit_state *state;
-	vorbis_comment *vc;
-	char *inpath, *outpath, *key, *val;
-	FILE *fd, *fd2, *fd3, *fd4;
-	HV *hash = (HV *) SvRV(obj);
-	HV *chash;
-	AV *vals;
-	HE *hval;
-	int bytes;
-	char buffer[BUFFSIZE];
-	I32 i, j, num;
+  vcedit_state *state;
+  vorbis_comment *vc;
+  char *inpath, *outpath, *key, *val;
+  FILE *fd, *fd2, *fd3, *fd4;
+  HV *hash = (HV *) SvRV(obj);
+  HV *chash;
+  AV *vals;
+  HE *hval;
+  int bytes;
+  char buffer[BUFFSIZE];
+  I32 i, j, num;
 
 
-	/* Skip if comments hasn't been opened */
-	if (! hv_exists(hash, "COMMENTS", 8)) {
-		return 0;
-	}
+  /* Skip if comments hasn't been opened */
+  if (! hv_exists(hash, "COMMENTS", 8)) {
+    return 0;
+  }
 
-	/* Set up the input and output paths */
-	inpath = (char *) SvIV(*(hv_fetch(hash, "_PATH", 5, 0)));
-	outpath = malloc(strlen(inpath) + (8 * sizeof(char)));
-	strcpy(outpath, inpath);
-	strcat(outpath, ".ovitmp");
+  /* Set up the input and output paths */
+  inpath = (char *) SvIV(*(hv_fetch(hash, "_PATH", 5, 0)));
+  outpath = malloc(strlen(inpath) + (8 * sizeof(char)));
+  strcpy(outpath, inpath);
+  strcat(outpath, ".ovitmp");
 
-	/* Open the files */
-	if ((fd = fopen(inpath, "rb")) == NULL) {
-		perror("Error opening file in Ogg::Vorbis::Header::write\n");
-		free(outpath);
-		return &PL_sv_undef;
-	}
+  /* Open the files */
+  if ((fd = fopen(inpath, "rb")) == NULL) {
+    perror("Error opening file in Ogg::Vorbis::Header::write\n");
+    free(outpath);
+    return &PL_sv_undef;
+  }
 
-	if ((fd2 = fopen(outpath, "w+b")) == NULL) {
-		perror("Error opening temp file in Ogg::Vorbis::Header::write\n");
-		fclose(fd);
-		free(outpath);
-		return &PL_sv_undef;
-	}
+  if ((fd2 = fopen(outpath, "w+b")) == NULL) {
+    perror("Error opening temp file in Ogg::Vorbis::Header::write\n");
+    fclose(fd);
+    free(outpath);
+    return &PL_sv_undef;
+  }
 
-	/* Setup the state and comments structs */
-	state = vcedit_new_state();
-	if (vcedit_open(state, fd) < 0) {
-		perror("Error opening stream in Ogg::Vorbis::Header::add_comment\n");
-		fclose(fd);
-		fclose(fd2);
-		unlink(outpath);
-		free(outpath);
-		return &PL_sv_undef;
-	}
-	vc = vcedit_comments(state);
+  /* Setup the state and comments structs */
+  state = vcedit_new_state();
+  if (vcedit_open(state, fd) < 0) {
+    perror("Error opening stream in Ogg::Vorbis::Header::add_comment\n");
+    fclose(fd);
+    fclose(fd2);
+    unlink(outpath);
+    free(outpath);
+    return &PL_sv_undef;
+  }
+  vc = vcedit_comments(state);
 
-	/* clear the old comment fields */
-	vorbis_comment_clear(vc);
-	vorbis_comment_init(vc);
+  /* clear the old comment fields */
+  vorbis_comment_clear(vc);
+  vorbis_comment_init(vc);
 
-	/* Write the comment fields from the hash
-	 * FIX: This doesn't preserve order, which may or may not be a problem
-	 */
-	chash = (HV *) SvRV(*(hv_fetch(hash, "COMMENTS", 8, 0)));
+  /* Write the comment fields from the hash
+   * FIX: This doesn't preserve order, which may or may not be a problem
+   */
+  chash = (HV *) SvRV(*(hv_fetch(hash, "COMMENTS", 8, 0)));
 
-	num = hv_iterinit(chash);
-	for (i = 0; i < num; ++i) {
-		hval = hv_iternext(chash);
-		key = SvPV_nolen(hv_iterkeysv(hval));
-		vals = (AV*) SvRV(*(hv_fetch(chash, key, strlen(key), 0)));
-		for (j = 0; j <= av_len(vals); ++j) {
-			val = SvPV_nolen(*av_fetch(vals, j, 0));
-			vorbis_comment_add_tag(vc, key, val);
-		}
-	}
+  num = hv_iterinit(chash);
+  for (i = 0; i < num; ++i) {
+    hval = hv_iternext(chash);
+    key = SvPV_nolen(hv_iterkeysv(hval));
+    vals = (AV*) SvRV(*(hv_fetch(chash, key, strlen(key), 0)));
+    for (j = 0; j <= av_len(vals); ++j) {
+      val = SvPV_nolen(*av_fetch(vals, j, 0));
+      vorbis_comment_add_tag(vc, key, val);
+    }
+  }
 
-	/* Write out the new stream */
-	if (vcedit_write(state, fd2) < 0) {
-		perror("Error writing stream in Ogg::Vorbis::Header::add_comment\n");
-		fclose(fd);
-		fclose(fd2);
-		vcedit_clear(state);
-		unlink(outpath);
-		free(outpath);
-		return &PL_sv_undef;
-	}
+  /* Write out the new stream */
+  if (vcedit_write(state, fd2) < 0) {
+    perror("Error writing stream in Ogg::Vorbis::Header::add_comment\n");
+    fclose(fd);
+    fclose(fd2);
+    vcedit_clear(state);
+    unlink(outpath);
+    free(outpath);
+    return &PL_sv_undef;
+  }
 
-	fclose(fd);
-	fclose(fd2);
-	vcedit_clear(state);
-	if ((fd = fopen(outpath, "rb")) == NULL) {
-		perror("Error copying tempfile in Ogg::Vorbis::Header::add_comment\n");
-		unlink(outpath);
-		free(outpath);
-		return &PL_sv_undef;
-	}
+  fclose(fd);
+  fclose(fd2);
+  vcedit_clear(state);
+  if ((fd = fopen(outpath, "rb")) == NULL) {
+    perror("Error copying tempfile in Ogg::Vorbis::Header::add_comment\n");
+    unlink(outpath);
+    free(outpath);
+    return &PL_sv_undef;
+  }
 
-	if ((fd2 = fopen(inpath, "wb")) == NULL) {
-		perror("Error copying tempfile in Ogg::Vorbis::Header::write_vorbis\n");
-		fclose(fd);
-		unlink(outpath);
-		free(outpath);
-		return &PL_sv_undef;
-	}
+  if ((fd2 = fopen(inpath, "wb")) == NULL) {
+    perror("Error copying tempfile in Ogg::Vorbis::Header::write_vorbis\n");
+    fclose(fd);
+    unlink(outpath);
+    free(outpath);
+    return &PL_sv_undef;
+  }
 
-	while ((bytes = fread(buffer, 1, BUFFSIZE, fd)) > 0)
-		fwrite(buffer, 1, bytes, fd2);
+  while ((bytes = fread(buffer, 1, BUFFSIZE, fd)) > 0)
+    fwrite(buffer, 1, bytes, fd2);
 
-	fclose(fd);
-	fclose(fd2);
-	unlink(outpath);
-	free(outpath);
+  fclose(fd);
+  fclose(fd2);
+  unlink(outpath);
+  free(outpath);
 
-	return 1;
+  return 1;
 }
 
 /* We strdup'd the internal path string so we need to free it */
 void DESTROY (SV *obj)
 {
-	char *ptr;
-	HV *hash = (HV *) SvRV(obj);
+  char *ptr;
+  HV *hash = (HV *) SvRV(obj);
 
-	ptr = (char *) SvIV(*(hv_fetch(hash, "_PATH", 5, 0)));
-	free(ptr);
+  ptr = (char *) SvIV(*(hv_fetch(hash, "_PATH", 5, 0)));
+  free(ptr);
 }
