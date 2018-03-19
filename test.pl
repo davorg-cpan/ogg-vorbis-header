@@ -5,8 +5,11 @@
 
 # change 'tests => 1' to 'tests => last_test_to_print';
 
+use strict;
+use warnings;
+
 use Test;
-BEGIN { plan tests => 13 };
+BEGIN { plan tests => 13 }
 use Ogg::Vorbis::Header;
 ok(1); # If we made it this far, we're ok.
 
@@ -23,7 +26,7 @@ ok(my $ogg = Ogg::Vorbis::Header->new("test.ogg"));
 ok($ogg->load);
 
 # Try all the routines
-ok($ogg->info->{"rate"} == 44100);
+ok($ogg->info->{"rate"} == 44_100);
 ok($ogg->comment_tags);
 ok(($ogg->comment("artist"))[0] eq "Dan");
 ok($ogg->add_comments("moog", "bog"));
