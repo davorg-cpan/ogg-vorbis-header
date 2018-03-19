@@ -7,77 +7,77 @@ use warnings;
 our $VERSION = '0.06';
 
 use Inline C => 'DATA',
-					LIBS => '-logg -lvorbis -lvorbisfile',
-					INC => '-I/inc',
-					AUTO_INCLUDE => '#include "inc/vcedit.h"',
-					AUTO_INCLUDE => '#include "inc/vcedit.c"',
-					VERSION => '0.06',
-					NAME => 'Ogg::Vorbis::Header';
+  LIBS => '-logg -lvorbis -lvorbisfile',
+  INC => '-I/inc',
+  AUTO_INCLUDE => '#include "inc/vcedit.h"',
+  AUTO_INCLUDE => '#include "inc/vcedit.c"',
+  VERSION => '0.06',
+  NAME => 'Ogg::Vorbis::Header';
 
 # constructors
 
 # wrap this so $obj->new will work right
 sub new {
-	my ($id, $path) = @_;
-	$id = ref($id) || $id;
-	_new($id, $path);
+  my ($id, $path) = @_;
+  $id = ref($id) || $id;
+  _new($id, $path);
 }
 
 sub load {
-	my ($id, $path) = @_;
-	unless (ref($id)) {
-		$id = _new($id, $path);
-	}
-	return $id unless $id;
-	$id->_load_info;
-	$id->_load_comments;
-	return $id;
+  my ($id, $path) = @_;
+  unless (ref($id)) {
+    $id = _new($id, $path);
+  }
+  return $id unless $id;
+  $id->_load_info;
+  $id->_load_comments;
+  return $id;
 }
 
 # A number of the instance methods may be handled with perl code.
 
 sub info {
-	my ($self, $key) = @_;
-	$self->_load_info unless $self->{INFO};
-	if ($key) {
-		return $self->{INFO}->{$key};
-	}
-	return $self->{INFO};
+  my ($self, $key) = @_;
+  $self->_load_info unless $self->{INFO};
+  if ($key) {
+    return $self->{INFO}->{$key};
+  }
+  return $self->{INFO};
 }
 
 sub comment_tags {
-	my $self = shift;
-	$self->_load_comments unless $self->{COMMENTS};
-	return keys %{$self->{COMMENTS}};
+  my $self = shift;
+  $self->_load_comments unless $self->{COMMENTS};
+  return keys %{$self->{COMMENTS}};
 }
 
 sub comment {
-	my ($self, $key) = @_;
-	my $result;
-	return undef unless $key;
-	$self->_load_comments unless $self->{COMMENTS};
-	if (! defined ($result = $self->{COMMENTS}->{$key})) {
-		return undef;
-	}
-	return @{$result};
+  my ($self, $key) = @_;
+  my $result;
+  return undef unless $key;
+  $self->_load_comments unless $self->{COMMENTS};
+  if (! defined ($result = $self->{COMMENTS}->{$key})) {
+    return undef;
+  }
+  return @{$result};
 }
 
 sub add_comments {
-	my ($self, @comments) = @_;
-	# For now play it safe limit both tag and field to minimal ascii
-	# will work on utf8 in field later
-	return undef if @comments < 2 or @comments % 2 != 0;
-	$self->_load_comments unless $self->{COMMENTS};
-	while ($#comments >= 0) {
-		my $key = shift @comments;
-		$key =~ s/[^\x20-\x3C\x3E-\x7D]//g;
-		$key = lc($key);
-		my $val = shift @comments;
-		$val =~ s/[^\x20-\x7D]//g;
-		push @{$self->{COMMENTS}->{$key}}, $val;
-	}
+  my ($self, @comments) = @_;
+  # For now play it safe limit both tag and field to minimal ascii
+  # will work on utf8 in field later
+  return undef if @comments < 2 or @comments % 2 != 0;
+  $self->_load_comments unless $self->{COMMENTS};
+  while ($#comments >= 0) {
+    my $key = shift @comments;
+    $key =~ s/[^\x20-\x3C\x3E-\x7D]//g;
+    $key = lc($key);
+    my $val = shift @comments;
+    $val =~ s/[^\x20-\x7D]//g;
+    push @{$self->{COMMENTS}->{$key}}, $val;
+  }
 
-	return 1;
+  return 1;
 }
 
 sub edit_comment {
