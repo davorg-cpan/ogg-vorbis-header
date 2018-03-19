@@ -8,6 +8,8 @@ perl:
   - "5.14"
 
 before_install:
+  sudo apt-get install libogg-dev
+  sudo apt-get install libvorbis-dev
   cpanm -n Devel::Cover::Report::Coveralls
 script:
   perl Makefile.PL && make && cover -test -report coveralls
