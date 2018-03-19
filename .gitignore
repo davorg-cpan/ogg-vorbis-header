@@ -2,6 +2,7 @@ MYMETA.*
 Makefile
 Ogg-Vorbis-Header-*.tar.gz
 Ogg-Vorbis-Header.inl
+Ogg-Vorbis-Header-*/
 _Inline/
 blib/
 pm_to_blib
