@@ -90,7 +90,7 @@ sub edit_comment {
   my $comment = $self->{COMMENTS}->{$key};
   return undef unless $comment;
   $value =~ s/[^\x20-\x7D]//g;
-  return undef unless @$comment > $num;
+  return undef if $num >= @$comment;
 
   my $result = $comment->[$num];
   $comment->[$num] = $value;
@@ -107,7 +107,7 @@ sub delete_comment {
 
   my $comment = $self->{COMMENTS}->{$key};
   return undef unless $comment;
-  return undef unless @$comment > $num;
+  return undef if $num >= @$comment;
 
   my $result = splice @$comment, $num, 1;
 
