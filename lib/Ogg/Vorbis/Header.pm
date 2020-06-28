@@ -1,3 +1,5 @@
+use compat::perl7;
+
 package Ogg::Vorbis::Header;
 
 use 5.006;
