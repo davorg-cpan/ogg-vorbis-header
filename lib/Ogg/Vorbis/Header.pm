@@ -11,7 +11,7 @@ use Inline C => 'DATA',
   INC => '-I/inc',
   AUTO_INCLUDE => '#include "inc/vcedit.h"',
   AUTO_INCLUDE => '#include "inc/vcedit.c"',
-  VERSION => '0.10',
+  VERSION => '0.11',
   NAME => 'Ogg::Vorbis::Header';
 
 # constructors
