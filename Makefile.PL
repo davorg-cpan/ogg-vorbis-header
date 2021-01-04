@@ -20,6 +20,9 @@ WriteMakefile(
           url  => 'https://github.com/davorg/Ogg-Vorbis-Header.git',
           web  => 'https://github.com/davorg/Ogg-Vorbis-Header',
         },
+        bugtracker => {
+          web  => 'https://github.com/davorg/Ogg-Vorbis-Header/issues',
+        },
       },
     },
     ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
