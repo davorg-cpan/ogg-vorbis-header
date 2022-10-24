@@ -43,8 +43,8 @@ jobs:
     name: Test coverage
     steps:
       - uses: actions/checkout@v3
-      - run: sudo apt-get update
-      - run: sudo apt-get install libinline-perl libogg-dev libvorbis-dev
+      - run: apt-get update
+      - run: apt-get install libinline-perl libogg-dev libvorbis-dev
       - name: Install modules
         run: cpanm -n --installdeps .
       - name: Coverage
