@@ -30,12 +30,13 @@ jobs:
       - run: sudo apt-get install libinline-perl libogg-dev libvorbis-dev
       - run: perl -V
       - run: cpanm --installdeps .
-      - run: prove -lv t
-      - name: Archive cpan logs
+      - name: Archive CPAN logs
+        if: ${{ failure() }}
         uses: actions/upload-artifact@v3
         with:
-          name: cpan-log
-          path: /home/runner/.cpan/work/*/build.log
+          name: cpan_log
+          path: /home/runner/.cpanm/work/*/build.log
+      - run: prove -lv t
 
   coverage:
     runs-on: ubuntu-latest
