@@ -58,11 +58,11 @@ WriteMakefile(
       resources => {
         repository => {
           type => 'git',
-          url  => 'https://github.com/davorg/Ogg-Vorbis-Header.git',
-          web  => 'https://github.com/davorg/Ogg-Vorbis-Header',
+          url  => 'https://github.com/davorg-cpan/Ogg-Vorbis-Header.git',
+          web  => 'https://github.com/davorg-cpan/Ogg-Vorbis-Header',
         },
         bugtracker => {
-          web  => 'https://github.com/davorg/Ogg-Vorbis-Header/issues',
+          web  => 'https://github.com/davorg-cpan/Ogg-Vorbis-Header/issues',
         },
       },
     },
