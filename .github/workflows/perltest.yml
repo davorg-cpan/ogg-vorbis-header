@@ -22,7 +22,7 @@ jobs:
         with:
           perl-version: ${{ matrix.perl }}
       - run: sudo apt-get update
-      - run: sudo apt-get install libinline-perl libogg-dev libvorbis-dev
+      - run: sudo apt-get install libinline-perl libinline-c-perl libogg-dev libvorbis-dev
       - run: perl -V
       - run: cpanm --installdeps .
       - name: Archive CPAN logs
