@@ -30,7 +30,7 @@ header files) then this is probably the reason). Please install the missing
 libraries and try again.
 
 If you would like to help the maintainer of this module to support this module
-on your operating system, then please contact him at davecross@cpan.org.
+on your operating system, then please contact him at dave@perlhacks.com.
 
 In order to continue attempting to build this module, please set the
 environment variable PERL_BUILD_OGG_VORBIS_HEADER to 1 and rerun this command.
